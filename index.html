@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E-SPORT DZ | Home</title>
+    <title>CHOF RAFI | Ultimate Market</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;600&display=swap" rel="stylesheet">
@@ -12,197 +12,466 @@
         :root {
             --bg-color: #000000;
             --text-color: #ffffff;
-            --border-color: #333333;
-            --transition: all 0.4s ease;
+            --accent-color: #333;
+            --active-color: #fff;
+            --danger-color: #8b0000;
+            --success-color: #006400;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            cursor: default;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
             font-family: 'Montserrat', sans-serif;
-            overflow-x: hidden;
-            line-height: 1.6;
+            overflow: hidden;
         }
 
-        h1, h2 {
-            font-family: 'Cinzel', serif;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-
-        a { text-decoration: none; color: inherit; cursor: pointer; }
-
+        /* --- Header / Navigation --- */
         header {
             position: fixed;
-            top: 0;
-            width: 100%;
-            padding: 25px 50px;
-            background: rgba(0, 0, 0, 0.9);
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 1000;
+            top: 0; width: 100%; height: 80px;
+            background: rgba(0, 0, 0, 0.95);
+            border-bottom: 1px solid var(--accent-color);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 40px; z-index: 1000;
+        }
+
+        .logo { font-family: 'Cinzel', serif; font-size: 1.5rem; letter-spacing: 3px; color: white; text-decoration: none; font-weight: 700; }
+
+        .nav-menu { display: flex; gap: 30px; }
+
+        .nav-btn {
+            background: transparent; border: none; color: #666;
+            font-family: 'Cinzel', serif; font-size: 0.9rem; letter-spacing: 2px;
+            cursor: pointer; transition: 0.3s; padding-bottom: 5px;
+            border-bottom: 2px solid transparent;
+        }
+
+        .nav-btn:hover { color: white; }
+        .nav-btn.active { color: white; border-bottom: 2px solid white; }
+
+        /* --- Main Content Area --- */
+        .main-container {
+            margin-top: 80px;
+            height: calc(100vh - 80px);
+            overflow-y: auto;
+            position: relative;
+        }
+
+        /* Sections Logic */
+        .section-page {
+            display: none; 
+            padding: 40px;
+            min-height: 100%;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .section-page.active-page { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- HOME SECTION --- */
+        #home-section {
+            display: none; 
+            flex-direction: column; justify-content: center; align-items: center; text-align: center;
+            height: 100%;
+        }
+        #home-section.active-page { display: flex; }
+
+        .hero-title { font-family: 'Cinzel', serif; font-size: 5vw; margin-bottom: 20px; text-shadow: 0 0 20px rgba(255,255,255,0.2); }
+        .hero-sub { color: #888; letter-spacing: 5px; margin-bottom: 40px; }
+        
+        /* --- MARKET SECTION --- */
+        .products-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px; padding-bottom: 50px;
+        }
+        .product-card {
+            background: #0a0a0a; border: 1px solid #222; padding: 20px;
+            transition: 0.3s; position: relative;
+        }
+        .product-card:hover { border-color: white; transform: translateY(-5px); }
+        
+        .card-img { 
+            height: 200px; background: #151515; margin-bottom: 15px; 
+            display: flex; align-items: center; justify-content: center; 
+            color: #333; font-family: 'Cinzel', serif; overflow: hidden;
+        }
+        .card-img img { width: 100%; height: 100%; object-fit: cover; }
+
+        .p-title { font-family: 'Cinzel', serif; font-size: 1.1rem; color: white; margin-bottom: 5px; }
+        .p-price { color: #aaa; font-size: 0.9rem; border: 1px solid #444; display: inline-block; padding: 2px 8px; margin-top: 10px; }
+
+        /* BUY & DELETE BUTTONS */
+        .btn-group { margin-top: 15px; display: flex; flex-direction: column; gap: 10px; }
+
+        .buy-btn {
+            width: 100%; background: white; color: black; border: none; padding: 10px;
+            font-family: 'Cinzel', serif; cursor: pointer; font-weight: bold; transition: 0.3s;
+        }
+        .buy-btn:hover { background: #ccc; }
+
+        .delete-btn {
+            display: none; 
+            width: 100%; background: var(--danger-color); color: white;
+            border: none; padding: 10px; 
+            font-family: 'Cinzel', serif; cursor: pointer; letter-spacing: 2px;
+        }
+        .delete-btn:hover { background: red; }
+        
+        body.owner-mode .delete-btn { display: block; }
+
+        /* --- SELLER STUDIO --- */
+        .seller-form { max-width: 600px; margin: 0 auto; border: 1px solid #333; padding: 40px; background: #050505; }
+        .form-title { font-family: 'Cinzel', serif; text-align: center; margin-bottom: 30px; border-bottom: 1px solid #333; padding-bottom: 20px; }
+        
+        input, textarea, select {
+            width: 100%; background: transparent; border: none; border-bottom: 1px solid #444;
+            color: white; padding: 15px 0; margin-bottom: 20px; font-family: 'Montserrat', sans-serif; outline: none;
+        }
+        select { color: #888; }
+        select option { background: black; color: white; }
+        input[type="file"] { border: 1px solid #333; padding: 10px; cursor: pointer; }
+        
+        input:focus, textarea:focus, select:focus { border-color: white; }
+        
+        .btn-publish {
+            width: 100%; background: white; color: black; padding: 15px; border: none;
+            font-family: 'Cinzel', serif; font-weight: bold; cursor: pointer; transition: 0.3s;
+        }
+        .btn-publish:hover { background: #ccc; letter-spacing: 2px; }
+
+        /* --- MODAL (BUY SYSTEM) --- */
+        .modal {
+            display: none; position: fixed; z-index: 2000; left: 0; top: 0;
+            width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.9);
             backdrop-filter: blur(5px);
         }
+        .modal-content {
+            background-color: #0a0a0a; border: 1px solid white; margin: 5% auto; padding: 30px;
+            width: 90%; max-width: 500px; position: relative; animation: fadeIn 0.4s;
+        }
+        .close-modal {
+            color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer;
+        }
+        .close-modal:hover { color: white; }
 
-        .logo {
-            font-size: 1.5rem;
-            letter-spacing: 4px;
-            border: 1px solid white;
-            padding: 5px 15px;
-        }
+        .modal-img { width: 100%; height: 250px; background: #151515; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .modal-img img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .modal-info h2 { font-family: 'Cinzel', serif; margin-bottom: 10px; color: white; }
+        .modal-info .price { font-size: 1.2rem; color: #fff; margin-bottom: 20px; display: inline-block; border-bottom: 1px solid #fff; }
+        
+        .seller-details { border-top: 1px solid #333; margin-top: 20px; padding-top: 20px; }
+        .detail-row { margin-bottom: 15px; font-size: 0.9rem; }
+        .detail-label { color: #888; font-family: 'Cinzel', serif; display: block; margin-bottom: 5px; }
+        .detail-value { color: white; font-weight: 600; letter-spacing: 1px; }
 
-        .nav-link {
-            font-size: 0.8rem;
-            letter-spacing: 2px;
-            margin-left: 30px;
-            position: relative;
-            transition: var(--transition);
-        }
+        /* OWNER CONTROLS */
+        .owner-controls { display: none; margin-top: 20px; border-top: 1px solid #333; padding-top: 20px; }
+        body.owner-mode .owner-controls { display: block; }
+        .btn-reset { background: #333; color: white; width: 100%; padding: 15px; border: none; font-family: 'Cinzel', serif; cursor: pointer; }
+        .btn-reset:hover { background: var(--danger-color); }
 
-        .hero {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            position: relative;
-            border-bottom: 1px solid white;
-        }
+        /* Support Grid */
+        .support-grid { display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; margin-top: 50px; }
+        .support-card { border: 1px solid #333; padding: 40px; width: 300px; text-align: center; transition: 0.3s; cursor: pointer; text-decoration: none; color: white; }
+        .support-card:hover { background: white; color: black; border-color: white; }
+        .support-title { font-family: 'Cinzel', serif; font-size: 1.5rem; margin-bottom: 15px; }
 
-        .hero h1 {
-            font-size: 5vw;
-            line-height: 1.1;
-            margin-bottom: 20px;
-        }
-
-        .hero p {
-            font-size: 1.2rem;
-            font-weight: 300;
-            max-width: 600px;
-            margin-bottom: 50px;
-            color: #cccccc;
-        }
-
-        .btn-main {
-            background: transparent;
-            color: white;
-            border: 1px solid white;
-            padding: 20px 60px;
-            font-family: 'Cinzel', serif;
-            font-size: 1rem;
-            letter-spacing: 3px;
-            transition: var(--transition);
-        }
-
-        .btn-main:hover {
-            background: white;
-            color: black;
-        }
-
-        .reveal {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.8s ease-out;
-        }
-        .reveal.active {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .marquee-container {
-            overflow: hidden;
-            white-space: nowrap;
-            padding: 20px 0;
-            border-bottom: 1px solid white;
-            background: black;
-        }
-
-        .marquee-content {
-            display: inline-block;
-            animation: marquee 20s linear infinite;
-        }
-
-        .marquee-item {
-            font-family: 'Cinzel', serif;
-            font-size: 1.5rem;
-            margin-right: 50px;
-            color: transparent;
-            -webkit-text-stroke: 1px white;
-        }
-
-        @keyframes marquee {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-        }
-
-        footer {
-            border-top: 1px solid white;
-            padding: 50px;
-            text-align: center;
-            font-size: 0.8rem;
-            letter-spacing: 2px;
-        }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="logo">E-SPORT DZ</div>
-        <nav>
-            <a href="leagues.html" class="nav-link">LEAGUE</a>
-            <a href="#" class="nav-link">ABOUT</a>
-        </nav>
+        <a href="#" class="logo" onclick="switchTab('home')">CHOF RAFI</a>
+        <div class="nav-menu">
+            <button class="nav-btn active" id="btn-home" onclick="switchTab('home')">HOME</button>
+            <button class="nav-btn" id="btn-market" onclick="switchTab('market')">MARKET</button>
+            <button class="nav-btn" id="btn-support" onclick="switchTab('support')">SUPPORT</button>
+            <button class="nav-btn" id="btn-seller" onclick="accessSeller()">SELLER ACCESS</button>
+        </div>
     </header>
 
-    <section class="hero">
-        <h1 class="reveal">Elevate Your<br>Competition</h1>
-        <p class="reveal">The Premier Algerian E-Sports Platform.</p>
-        <div class="reveal">
-            <a href="leagues.html" class="btn-main">EXPLORE LEAGUES</a>
-        </div>
-    </section>
+    <div class="main-container">
 
-    <div class="marquee-container">
-        <div class="marquee-content">
-            <span class="marquee-item">VALORANT CHAMPIONSHIP</span>
-            <span class="marquee-item">COUNTER STRIKE 2</span>
-            <span class="marquee-item">LEAGUE OF LEGENDS</span>
-            <span class="marquee-item">REGISTER NOW</span>
-            <span class="marquee-item">VALORANT CHAMPIONSHIP</span>
-            <span class="marquee-item">COUNTER STRIKE 2</span>
-            <span class="marquee-item">LEAGUE OF LEGENDS</span>
-            <span class="marquee-item">REGISTER NOW</span>
+        <div id="home-section" class="section-page active-page"> 
+            <h1 class="hero-title">WELCOME TO<br>THE DARK MARKET</h1>
+            <p class="hero-sub">PREMIUM . EXCLUSIVE . SECURE</p>
+            <button onclick="switchTab('market')" style="background:transparent; border:1px solid white; color:white; padding:15px 40px; font-family:'Cinzel', serif; cursor:pointer;">START BROWSING</button>
+        </div>
+
+        <div id="market-section" class="section-page">
+            <h2 style="font-family: 'Cinzel', serif; margin-bottom: 40px; text-align: center;">AVAILABLE ITEMS</h2>
+            <div class="products-grid" id="market-grid">
+                
+                <div class="product-card">
+                    <div class="card-img">WATCH</div>
+                    <div class="p-title">ROLEX SUBMARINER (COPY)</div>
+                    <p style="color:#666; font-size:0.8rem;">High quality copy, AAA grade.</p>
+                    <div class="p-price">35,000 DZD</div>
+                    <div class="btn-group">
+                        <button class="buy-btn" onclick="openModal('ROLEX SUBMARINER', '35,000 DZD', 'High quality copy, AAA grade.', null, '0550123456', 'admin@market.com', 'BaridiMob')">VIEW DETAILS / BUY</button>
+                        <button class="delete-btn" onclick="deleteProduct(this)">REMOVE ITEM</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div id="support-section" class="section-page">
+            <h2 style="font-family: 'Cinzel', serif; text-align: center;">CUSTOMER SUPPORT</h2>
+            <div class="support-grid">
+                <a href="#" class="support-card"><div class="support-title">DISCORD</div><p>JOIN OUR COMMUNITY</p></a>
+                <a href="#" class="support-card"><div class="support-title">INSTAGRAM</div><p>FOLLOW UPDATES</p></a>
+                <a href="#" class="support-card"><div class="support-title">EMAIL</div><p>CONTACT ADMIN</p></a>
+            </div>
+        </div>
+
+        <div id="seller-section" class="section-page">
+            <div class="seller-form">
+                <h2 class="form-title" id="studio-title">SELLER STUDIO</h2>
+                
+                <label style="color:#666; font-size:0.8rem; font-family:'Cinzel', serif;">PRODUCT IMAGE</label>
+                <input type="file" id="s-image" accept="image/*">
+                
+                <input type="text" id="s-name" placeholder="ITEM NAME">
+                <input type="text" id="s-price" placeholder="PRICE (DZD)">
+                <textarea id="s-desc" rows="3" placeholder="ITEM DESCRIPTION"></textarea>
+
+                <h3 style="font-family:'Cinzel', serif; margin: 20px 0 10px; font-size:1rem; color:#888;">PAYMENT & CONTACT INFO</h3>
+                <input type="tel" id="s-phone" placeholder="PHONE NUMBER (e.g., 0550...)">
+                <input type="email" id="s-email" placeholder="GMAIL ADDRESS">
+                
+                <select id="s-payment">
+                    <option value="" disabled selected>SELECT PAYMENT METHOD</option>
+                    <option value="BaridiMob">BaridiMob (CCP)</option>
+                    <option value="Paysera">Paysera</option>
+                    <option value="Wise">Wise</option>
+                    <option value="USDT">USDT (Crypto)</option>
+                    <option value="Cash">Hand to Hand (Cash)</option>
+                </select>
+
+                <button class="btn-publish" onclick="publishProduct()">PUBLISH NOW</button>
+                
+                <div class="owner-controls">
+                    <h3 style="text-align:center; font-family:'Cinzel',serif; margin-bottom:10px; color:#666;">OWNER ZONE</h3>
+                    <button class="btn-reset" onclick="resetSystem()">RESET SYSTEM (KICK ALL)</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <div class="modal-img" id="m-img-container">
+                </div>
+            <div class="modal-info">
+                <h2 id="m-title">PRODUCT NAME</h2>
+                <div class="price" id="m-price">000 DZD</div>
+                <p id="m-desc" style="color:#aaa; line-height:1.6;">Description here...</p>
+                
+                <div class="seller-details">
+                    <div class="detail-row">
+                        <span class="detail-label">SELLER PHONE</span>
+                        <span class="detail-value" id="m-phone">055XXXXXXX</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">SELLER EMAIL</span>
+                        <span class="detail-value" id="m-email">email@gmail.com</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">PAYMENT METHOD</span>
+                        <span class="detail-value" id="m-payment" style="color: lightgreen;">BaridiMob</span>
+                    </div>
+                </div>
+                <button style="width:100%; padding:15px; background:white; color:black; border:none; font-family:'Cinzel',serif; font-weight:bold; margin-top:20px; cursor:pointer;" onclick="alert('CONTACT SELLER USING INFO ABOVE')">CONFIRM PURCHASE</button>
+            </div>
         </div>
     </div>
 
-    <footer>
-        <p>&copy; 2026 E-SPORT DZ. ALL RIGHTS RESERVED.</p>
-    </footer>
-
     <script>
-        window.addEventListener('scroll', reveal);
-        function reveal() {
-            var reveals = document.querySelectorAll('.reveal');
-            for(var i = 0; i < reveals.length; i++) {
-                var windowHeight = window.innerHeight;
-                var elementTop = reveals[i].getBoundingClientRect().top;
-                if(elementTop < windowHeight - 150) {
-                    reveals[i].classList.add('active');
+        let userRole = 'guest'; 
+
+        function switchTab(tabName) {
+            const sections = document.querySelectorAll('.section-page');
+            sections.forEach(sec => sec.classList.remove('active-page'));
+
+            const buttons = document.querySelectorAll('.nav-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            if (tabName === 'home') {
+                document.getElementById('home-section').classList.add('active-page');
+                document.getElementById('btn-home').classList.add('active');
+            } 
+            else if (tabName === 'market') {
+                document.getElementById('market-section').classList.add('active-page');
+                document.getElementById('btn-market').classList.add('active');
+            } 
+            else if (tabName === 'support') {
+                document.getElementById('support-section').classList.add('active-page');
+                document.getElementById('btn-support').classList.add('active');
+            }
+            else if (tabName === 'seller') {
+                document.getElementById('seller-section').classList.add('active-page');
+                document.getElementById('btn-seller').classList.add('active');
+            }
+        }
+
+        function accessSeller() {
+            if (userRole === 'seller' || userRole === 'owner') {
+                switchTab('seller');
+                return;
+            }
+
+            let code = prompt("ENTER ACCESS CODE:");
+
+            if (code === "9999") { 
+                userRole = 'seller';
+                alert("ACCESS GRANTED: SELLER MODE.");
+                document.getElementById('btn-seller').innerText = "STUDIO";
+                switchTab('seller');
+            } 
+            else if (code === "8888") { 
+                userRole = 'owner';
+                document.body.classList.add('owner-mode');
+                alert("ACCESS GRANTED: OWNER MODE (ADMIN).");
+                document.getElementById('btn-seller').innerText = "OWNER HUB";
+                document.getElementById('studio-title').innerText = "OWNER CONTROL PANEL";
+                switchTab('seller');
+            } 
+            else {
+                alert("ACCESS DENIED.");
+            }
+        }
+
+        // --- NEW PUBLISH LOGIC WITH IMAGE & DETAILS ---
+        function publishProduct() {
+            let name = document.getElementById('s-name').value;
+            let price = document.getElementById('s-price').value;
+            let desc = document.getElementById('s-desc').value;
+            
+            // New Fields
+            let phone = document.getElementById('s-phone').value;
+            let email = document.getElementById('s-email').value;
+            let payment = document.getElementById('s-payment').value;
+            let imageInput = document.getElementById('s-image');
+
+            if (name && price && phone && payment) {
+                
+                // Handle Image
+                let imgSrc = 'NO IMAGE';
+                let hasImage = false;
+
+                if (imageInput.files && imageInput.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        createCard(name, price, desc, phone, email, payment, e.target.result);
+                    };
+                    reader.readAsDataURL(imageInput.files[0]);
+                } else {
+                    createCard(name, price, desc, phone, email, payment, null);
+                }
+
+            } else {
+                alert("PLEASE FILL ALL REQUIRED FIELDS (Image is optional)");
+            }
+        }
+
+        function createCard(name, price, desc, phone, email, payment, imgData) {
+            let displayImg = imgData ? `<img src="${imgData}" alt="Product">` : `<span>${name.substring(0,3).toUpperCase()}</span>`;
+            
+            // Escape single quotes for the onclick function string
+            let safeName = name.replace(/'/g, "\\'");
+            let safeDesc = desc.replace(/'/g, "\\'");
+            
+            // Create the card
+            let newCard = `
+            <div class="product-card">
+                <div class="card-img">${displayImg}</div>
+                <div class="p-title">${name.toUpperCase()}</div>
+                <p style="color:#666; font-size:0.8rem;">${desc}</p>
+                <div class="p-price">${price} DZD</div>
+                
+                <div class="btn-group">
+                    <button class="buy-btn" onclick="openModal('${safeName}', '${price}', '${safeDesc}', '${imgData || ''}', '${phone}', '${email}', '${payment}')">VIEW DETAILS / BUY</button>
+                    <button class="delete-btn" onclick="deleteProduct(this)">REMOVE ITEM</button>
+                </div>
+            </div>
+            `;
+
+            let grid = document.getElementById('market-grid');
+            grid.innerHTML = newCard + grid.innerHTML;
+
+            // Clear inputs
+            document.getElementById('s-name').value = "";
+            document.getElementById('s-price').value = "";
+            document.getElementById('s-desc').value = "";
+            document.getElementById('s-phone').value = "";
+            document.getElementById('s-email').value = "";
+            document.getElementById('s-image').value = "";
+
+            alert("ITEM PUBLISHED SUCCESSFULLY!");
+            switchTab('market');
+        }
+
+        function deleteProduct(btn) {
+            if (userRole === 'owner') {
+                if(confirm("DELETE THIS ITEM PERMANENTLY?")) {
+                    btn.closest('.product-card').remove();
+                }
+            } else {
+                alert("ONLY OWNER CAN DELETE ITEMS.");
+            }
+        }
+
+        function resetSystem() {
+            if (userRole === 'owner') {
+                if(confirm("ARE YOU SURE? THIS WILL LOG EVERYONE OUT.")) {
+                    userRole = 'guest';
+                    document.body.classList.remove('owner-mode');
+                    document.getElementById('btn-seller').innerText = "SELLER ACCESS";
+                    document.getElementById('studio-title').innerText = "SELLER STUDIO";
+                    alert("SYSTEM RESET. ALL USERS LOGGED OUT.");
+                    switchTab('home');
                 }
             }
         }
-        reveal();
+
+        // --- MODAL FUNCTIONS ---
+        const modal = document.getElementById("productModal");
+
+        function openModal(title, price, desc, img, phone, email, payment) {
+            document.getElementById('m-title').innerText = title;
+            document.getElementById('m-price').innerText = price;
+            document.getElementById('m-desc').innerText = desc;
+            document.getElementById('m-phone').innerText = phone;
+            document.getElementById('m-email').innerText = email;
+            document.getElementById('m-payment').innerText = payment;
+
+            const imgContainer = document.getElementById('m-img-container');
+            if (img && img !== 'null' && img !== '') {
+                imgContainer.innerHTML = `<img src="${img}">`;
+            } else {
+                imgContainer.innerHTML = `<span style="color:#333; font-family:'Cinzel',serif;">NO IMAGE</span>`;
+            }
+
+            modal.style.display = "block";
+        }
+
+        function closeModal() {
+            modal.style.display = "none";
+        }
+
+        // Close modal if clicking outside
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
     </script>
 </body>
 </html>
