@@ -182,7 +182,7 @@
 
     </style>
 </head>
-<body>
+<body onload="initMarket()">
 
     <header>
         <a href="#" class="logo" onclick="switchTab('home')">CHOF RAFI</a>
@@ -204,20 +204,7 @@
 
         <div id="market-section" class="section-page">
             <h2 style="font-family: 'Cinzel', serif; margin-bottom: 40px; text-align: center;">AVAILABLE ITEMS</h2>
-            <div class="products-grid" id="market-grid">
-                
-                <div class="product-card">
-                    <div class="card-img">WATCH</div>
-                    <div class="p-title">ROLEX SUBMARINER (COPY)</div>
-                    <p style="color:#666; font-size:0.8rem;">High quality copy, AAA grade.</p>
-                    <div class="p-price">35,000 DZD</div>
-                    <div class="btn-group">
-                        <button class="buy-btn" onclick="openModal('ROLEX SUBMARINER', '35,000 DZD', 'High quality copy, AAA grade.', null, '0550123456', 'admin@market.com', 'BaridiMob')">VIEW DETAILS / BUY</button>
-                        <button class="delete-btn" onclick="deleteProduct(this)">REMOVE ITEM</button>
-                    </div>
-                </div>
-
-            </div>
+            <div class="products-grid" id="market-grid"></div>
         </div>
 
         <div id="support-section" class="section-page">
@@ -257,7 +244,7 @@
                 
                 <div class="owner-controls">
                     <h3 style="text-align:center; font-family:'Cinzel',serif; margin-bottom:10px; color:#666;">OWNER ZONE</h3>
-                    <button class="btn-reset" onclick="resetSystem()">RESET SYSTEM (KICK ALL)</button>
+                    <button class="btn-reset" onclick="resetSystem()">RESET SYSTEM (DELETE ALL)</button>
                 </div>
             </div>
         </div>
@@ -267,8 +254,7 @@
     <div id="productModal" class="modal">
         <div class="modal-content">
             <span class="close-modal" onclick="closeModal()">&times;</span>
-            <div class="modal-img" id="m-img-container">
-                </div>
+            <div class="modal-img" id="m-img-container"></div>
             <div class="modal-info">
                 <h2 id="m-title">PRODUCT NAME</h2>
                 <div class="price" id="m-price">000 DZD</div>
@@ -294,41 +280,76 @@
     </div>
 
     <script>
+        // --- DATA & STORAGE MANAGEMENT ---
         let userRole = 'guest'; 
+        let productList = [];
 
+        // 1. Initialize Market (Load Data)
+        function initMarket() {
+            const storedData = localStorage.getItem('rafiMarketProducts');
+            
+            if (storedData) {
+                productList = JSON.parse(storedData);
+            } else {
+                // Default Item (Rolex) - Only added if storage is empty
+                productList = [{
+                    name: 'ROLEX SUBMARINER (COPY)',
+                    price: '35,000 DZD',
+                    desc: 'High quality copy, AAA grade.',
+                    phone: '0550123456',
+                    email: 'admin@market.com',
+                    payment: 'BaridiMob',
+                    image: null // No image for default to keep it light
+                }];
+                saveData();
+            }
+            renderProducts();
+        }
+
+        // 2. Save Data to Local Storage
+        function saveData() {
+            localStorage.setItem('rafiMarketProducts', JSON.stringify(productList));
+        }
+
+        // 3. Render Products to HTML
+        function renderProducts() {
+            const grid = document.getElementById('market-grid');
+            grid.innerHTML = ""; // Clear grid
+
+            productList.forEach((item, index) => {
+                let displayImg = item.image 
+                    ? `<img src="${item.image}" alt="Product">` 
+                    : `<span>${item.name.substring(0,3).toUpperCase()}</span>`;
+
+                let cardHTML = `
+                <div class="product-card">
+                    <div class="card-img">${displayImg}</div>
+                    <div class="p-title">${item.name.toUpperCase()}</div>
+                    <p style="color:#666; font-size:0.8rem;">${item.desc.substring(0, 50)}...</p>
+                    <div class="p-price">${item.price}</div>
+                    <div class="btn-group">
+                        <button class="buy-btn" onclick="openModal(${index})">VIEW DETAILS / BUY</button>
+                        <button class="delete-btn" onclick="deleteProduct(${index})">REMOVE ITEM</button>
+                    </div>
+                </div>
+                `;
+                grid.innerHTML += cardHTML; // Append card
+            });
+        }
+
+        // --- NAVIGATION & ACCESS ---
         function switchTab(tabName) {
-            const sections = document.querySelectorAll('.section-page');
-            sections.forEach(sec => sec.classList.remove('active-page'));
+            document.querySelectorAll('.section-page').forEach(sec => sec.classList.remove('active-page'));
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
 
-            const buttons = document.querySelectorAll('.nav-btn');
-            buttons.forEach(btn => btn.classList.remove('active'));
-
-            if (tabName === 'home') {
-                document.getElementById('home-section').classList.add('active-page');
-                document.getElementById('btn-home').classList.add('active');
-            } 
-            else if (tabName === 'market') {
-                document.getElementById('market-section').classList.add('active-page');
-                document.getElementById('btn-market').classList.add('active');
-            } 
-            else if (tabName === 'support') {
-                document.getElementById('support-section').classList.add('active-page');
-                document.getElementById('btn-support').classList.add('active');
-            }
-            else if (tabName === 'seller') {
-                document.getElementById('seller-section').classList.add('active-page');
-                document.getElementById('btn-seller').classList.add('active');
-            }
+            document.getElementById(tabName + '-section').classList.add('active-page');
+            document.getElementById('btn-' + tabName).classList.add('active');
         }
 
         function accessSeller() {
-            if (userRole === 'seller' || userRole === 'owner') {
-                switchTab('seller');
-                return;
-            }
+            if (userRole === 'seller' || userRole === 'owner') { switchTab('seller'); return; }
 
             let code = prompt("ENTER ACCESS CODE:");
-
             if (code === "9999") { 
                 userRole = 'seller';
                 alert("ACCESS GRANTED: SELLER MODE.");
@@ -342,119 +363,100 @@
                 document.getElementById('btn-seller').innerText = "OWNER HUB";
                 document.getElementById('studio-title').innerText = "OWNER CONTROL PANEL";
                 switchTab('seller');
-            } 
-            else {
+            } else {
                 alert("ACCESS DENIED.");
             }
         }
 
-        // --- NEW PUBLISH LOGIC WITH IMAGE & DETAILS ---
+        // --- PUBLISH SYSTEM ---
         function publishProduct() {
             let name = document.getElementById('s-name').value;
             let price = document.getElementById('s-price').value;
             let desc = document.getElementById('s-desc').value;
-            
-            // New Fields
             let phone = document.getElementById('s-phone').value;
             let email = document.getElementById('s-email').value;
             let payment = document.getElementById('s-payment').value;
             let imageInput = document.getElementById('s-image');
 
             if (name && price && phone && payment) {
-                
-                // Handle Image
-                let imgSrc = 'NO IMAGE';
-                let hasImage = false;
-
                 if (imageInput.files && imageInput.files[0]) {
                     const reader = new FileReader();
                     reader.onload = function(e) {
-                        createCard(name, price, desc, phone, email, payment, e.target.result);
+                        addProductToArray(name, price, desc, phone, email, payment, e.target.result);
                     };
                     reader.readAsDataURL(imageInput.files[0]);
                 } else {
-                    createCard(name, price, desc, phone, email, payment, null);
+                    addProductToArray(name, price, desc, phone, email, payment, null);
                 }
-
             } else {
-                alert("PLEASE FILL ALL REQUIRED FIELDS (Image is optional)");
+                alert("PLEASE FILL ALL REQUIRED FIELDS");
             }
         }
 
-        function createCard(name, price, desc, phone, email, payment, imgData) {
-            let displayImg = imgData ? `<img src="${imgData}" alt="Product">` : `<span>${name.substring(0,3).toUpperCase()}</span>`;
+        function addProductToArray(name, price, desc, phone, email, payment, imgData) {
+            // Add new item to the beginning of the array
+            productList.unshift({
+                name: name,
+                price: price,
+                desc: desc,
+                phone: phone,
+                email: email,
+                payment: payment,
+                image: imgData
+            });
             
-            // Escape single quotes for the onclick function string
-            let safeName = name.replace(/'/g, "\\'");
-            let safeDesc = desc.replace(/'/g, "\\'");
+            saveData(); // Save to permanent storage
+            renderProducts(); // Update screen
             
-            // Create the card
-            let newCard = `
-            <div class="product-card">
-                <div class="card-img">${displayImg}</div>
-                <div class="p-title">${name.toUpperCase()}</div>
-                <p style="color:#666; font-size:0.8rem;">${desc}</p>
-                <div class="p-price">${price} DZD</div>
-                
-                <div class="btn-group">
-                    <button class="buy-btn" onclick="openModal('${safeName}', '${price}', '${safeDesc}', '${imgData || ''}', '${phone}', '${email}', '${payment}')">VIEW DETAILS / BUY</button>
-                    <button class="delete-btn" onclick="deleteProduct(this)">REMOVE ITEM</button>
-                </div>
-            </div>
-            `;
-
-            let grid = document.getElementById('market-grid');
-            grid.innerHTML = newCard + grid.innerHTML;
-
-            // Clear inputs
+            // Reset Form
             document.getElementById('s-name').value = "";
             document.getElementById('s-price').value = "";
             document.getElementById('s-desc').value = "";
-            document.getElementById('s-phone').value = "";
-            document.getElementById('s-email').value = "";
             document.getElementById('s-image').value = "";
-
-            alert("ITEM PUBLISHED SUCCESSFULLY!");
+            
+            alert("ITEM PUBLISHED & SAVED!");
             switchTab('market');
         }
 
-        function deleteProduct(btn) {
+        // --- DELETE SYSTEM ---
+        function deleteProduct(index) {
             if (userRole === 'owner') {
                 if(confirm("DELETE THIS ITEM PERMANENTLY?")) {
-                    btn.closest('.product-card').remove();
+                    productList.splice(index, 1); // Remove from array
+                    saveData(); // Update storage
+                    renderProducts(); // Update screen
                 }
             } else {
                 alert("ONLY OWNER CAN DELETE ITEMS.");
             }
         }
 
+        // --- RESET SYSTEM ---
         function resetSystem() {
             if (userRole === 'owner') {
-                if(confirm("ARE YOU SURE? THIS WILL LOG EVERYONE OUT.")) {
-                    userRole = 'guest';
-                    document.body.classList.remove('owner-mode');
-                    document.getElementById('btn-seller').innerText = "SELLER ACCESS";
-                    document.getElementById('studio-title').innerText = "SELLER STUDIO";
-                    alert("SYSTEM RESET. ALL USERS LOGGED OUT.");
-                    switchTab('home');
+                if(confirm("DANGER: THIS WILL DELETE ALL PRODUCTS AND RESET SYSTEM.")) {
+                    localStorage.removeItem('rafiMarketProducts'); // Wipe data
+                    location.reload(); // Reload page to reset
                 }
             }
         }
 
-        // --- MODAL FUNCTIONS ---
+        // --- MODAL SYSTEM ---
         const modal = document.getElementById("productModal");
 
-        function openModal(title, price, desc, img, phone, email, payment) {
-            document.getElementById('m-title').innerText = title;
-            document.getElementById('m-price').innerText = price;
-            document.getElementById('m-desc').innerText = desc;
-            document.getElementById('m-phone').innerText = phone;
-            document.getElementById('m-email').innerText = email;
-            document.getElementById('m-payment').innerText = payment;
+        function openModal(index) {
+            let item = productList[index]; // Get item from array using index
+            
+            document.getElementById('m-title').innerText = item.name.toUpperCase();
+            document.getElementById('m-price').innerText = item.price;
+            document.getElementById('m-desc').innerText = item.desc;
+            document.getElementById('m-phone').innerText = item.phone;
+            document.getElementById('m-email').innerText = item.email;
+            document.getElementById('m-payment').innerText = item.payment;
 
             const imgContainer = document.getElementById('m-img-container');
-            if (img && img !== 'null' && img !== '') {
-                imgContainer.innerHTML = `<img src="${img}">`;
+            if (item.image) {
+                imgContainer.innerHTML = `<img src="${item.image}">`;
             } else {
                 imgContainer.innerHTML = `<span style="color:#333; font-family:'Cinzel',serif;">NO IMAGE</span>`;
             }
@@ -462,16 +464,9 @@
             modal.style.display = "block";
         }
 
-        function closeModal() {
-            modal.style.display = "none";
-        }
+        function closeModal() { modal.style.display = "none"; }
+        window.onclick = function(event) { if (event.target == modal) modal.style.display = "none"; }
 
-        // Close modal if clicking outside
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
-        }
     </script>
 </body>
 </html>
