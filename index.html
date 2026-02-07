@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-SPORT DZ | Home</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #000000;
+            --text-color: #ffffff;
+            --border-color: #333333;
+            --transition: all 0.4s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: default;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Montserrat', sans-serif;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        h1, h2 {
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        a { text-decoration: none; color: inherit; cursor: pointer; }
+
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 25px 50px;
+            background: rgba(0, 0, 0, 0.9);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            letter-spacing: 4px;
+            border: 1px solid white;
+            padding: 5px 15px;
+        }
+
+        .nav-link {
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            margin-left: 30px;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            border-bottom: 1px solid white;
+        }
+
+        .hero h1 {
+            font-size: 5vw;
+            line-height: 1.1;
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            font-weight: 300;
+            max-width: 600px;
+            margin-bottom: 50px;
+            color: #cccccc;
+        }
+
+        .btn-main {
+            background: transparent;
+            color: white;
+            border: 1px solid white;
+            padding: 20px 60px;
+            font-family: 'Cinzel', serif;
+            font-size: 1rem;
+            letter-spacing: 3px;
+            transition: var(--transition);
+        }
+
+        .btn-main:hover {
+            background: white;
+            color: black;
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .marquee-container {
+            overflow: hidden;
+            white-space: nowrap;
+            padding: 20px 0;
+            border-bottom: 1px solid white;
+            background: black;
+        }
+
+        .marquee-content {
+            display: inline-block;
+            animation: marquee 20s linear infinite;
+        }
+
+        .marquee-item {
+            font-family: 'Cinzel', serif;
+            font-size: 1.5rem;
+            margin-right: 50px;
+            color: transparent;
+            -webkit-text-stroke: 1px white;
+        }
+
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        footer {
+            border-top: 1px solid white;
+            padding: 50px;
+            text-align: center;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">E-SPORT DZ</div>
+        <nav>
+            <a href="leagues.html" class="nav-link">LEAGUE</a>
+            <a href="#" class="nav-link">ABOUT</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <h1 class="reveal">Elevate Your<br>Competition</h1>
+        <p class="reveal">The Premier Algerian E-Sports Platform.</p>
+        <div class="reveal">
+            <a href="leagues.html" class="btn-main">EXPLORE LEAGUES</a>
+        </div>
+    </section>
+
+    <div class="marquee-container">
+        <div class="marquee-content">
+            <span class="marquee-item">VALORANT CHAMPIONSHIP</span>
+            <span class="marquee-item">COUNTER STRIKE 2</span>
+            <span class="marquee-item">LEAGUE OF LEGENDS</span>
+            <span class="marquee-item">REGISTER NOW</span>
+            <span class="marquee-item">VALORANT CHAMPIONSHIP</span>
+            <span class="marquee-item">COUNTER STRIKE 2</span>
+            <span class="marquee-item">LEAGUE OF LEGENDS</span>
+            <span class="marquee-item">REGISTER NOW</span>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 E-SPORT DZ. ALL RIGHTS RESERVED.</p>
+    </footer>
+
+    <script>
+        window.addEventListener('scroll', reveal);
+        function reveal() {
+            var reveals = document.querySelectorAll('.reveal');
+            for(var i = 0; i < reveals.length; i++) {
+                var windowHeight = window.innerHeight;
+                var elementTop = reveals[i].getBoundingClientRect().top;
+                if(elementTop < windowHeight - 150) {
+                    reveals[i].classList.add('active');
+                }
+            }
+        }
+        reveal();
+    </script>
+</body>
+</html>
