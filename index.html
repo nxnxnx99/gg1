@@ -24,7 +24,7 @@
             background-color: var(--bg-color);
             color: var(--text-color);
             font-family: 'Montserrat', sans-serif;
-            overflow-x: hidden;
+            overflow: hidden;
         }
 
         /* --- Header / Navigation --- */
@@ -139,6 +139,7 @@
             align-items: center;
             gap: 10px;
             margin-top: 10px;
+            width: 100%;
         }
 
         .btn-google:hover {
@@ -281,6 +282,7 @@
             <button class="nav-btn" id="btn-market" onclick="switchTab('market')">MARKET</button>
             <button class="nav-btn" id="btn-support" onclick="switchTab('support')">SUPPORT</button>
             <button class="nav-btn" id="btn-seller" onclick="accessSeller()">SELLER ACCESS</button>
+            <button class="nav-btn" id="btn-logout" style="display:none; color:red;" onclick="userLogout()">LOGOUT</button>
         </div>
     </header>
 
@@ -295,14 +297,14 @@
                     <button class="toggle-btn" id="btn-tab-register" onclick="toggleAuth('register')">REGISTER</button>
                 </div>
 
-                <form id="form-login" class="auth-form active-form" onsubmit="event.preventDefault(); userLogin();">
-                    <input type="email" placeholder="EMAIL ADDRESS" required>
-                    <input type="password" placeholder="PASSWORD" required>
+                <form id="form-login" class="auth-form active-form" onsubmit="event.preventDefault(); handleEmailLogin();">
+                    <input type="email" id="login-email" placeholder="EMAIL ADDRESS" required>
+                    <input type="password" id="login-pass" placeholder="PASSWORD" required>
                     <button type="submit" class="btn-publish">ENTER SYSTEM</button>
                     
                     <div class="divider">OR</div>
                     
-                    <button type="button" class="btn-google" onclick="userLogin()">
+                    <button type="button" class="btn-google" onclick="handleGoogleLogin()">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#fff"/>
                             <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#fff"/>
@@ -313,14 +315,13 @@
                     </button>
                 </form>
 
-                <form id="form-register" class="auth-form" onsubmit="event.preventDefault(); userLogin();">
+                <form id="form-register" class="auth-form" onsubmit="event.preventDefault(); handleEmailRegister();">
                     <div class="name-row">
-                        <input type="text" placeholder="FIRST NAME" required>
-                        <input type="text" placeholder="LAST NAME" required>
+                        <input type="text" id="reg-fname" placeholder="FIRST NAME" required>
+                        <input type="text" id="reg-lname" placeholder="LAST NAME" required>
                     </div>
-                    <input type="email" placeholder="EMAIL ADDRESS" required>
-                    <input type="password" placeholder="PASSWORD" required>
-                    <input type="password" placeholder="CONFIRM PASSWORD" required>
+                    <input type="email" id="reg-email" placeholder="EMAIL ADDRESS" required>
+                    <input type="password" id="reg-pass" placeholder="PASSWORD" required>
                     <button type="submit" class="btn-publish">CREATE ACCOUNT</button>
                 </form>
             </div>
@@ -410,9 +411,8 @@
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, doc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
-        import { getStorage, ref, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBvYT2zroIh4fEUu1XMeutMBHK_kVkzGKQ",
@@ -425,21 +425,83 @@
         };
 
         const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const storage = getStorage(app);
+        const auth = getAuth();
 
+        // Email Login
+        window.handleEmailLogin = async () => {
+            const email = document.getElementById('login-email').value;
+            const pass = document.getElementById('login-pass').value;
+            try {
+                await signInWithEmailAndPassword(auth, email, pass);
+                alert("ACCESS GRANTED!");
+            } catch (error) { alert("ERROR: " + error.message); }
+        };
+
+        // Email Register
+        window.handleEmailRegister = async () => {
+            const email = document.getElementById('reg-email').value;
+            const pass = document.getElementById('reg-pass').value;
+            try {
+                await createUserWithEmailAndPassword(auth, email, pass);
+                alert("ACCOUNT CREATED SUCCESSFULLY!");
+            } catch (error) { alert("ERROR: " + error.message); }
+        };
+
+        // Google Login
+        window.handleGoogleLogin = async () => {
+            const provider = new GoogleAuthProvider();
+            try {
+                await signInWithPopup(auth, provider);
+                alert("GOOGLE LOGIN SUCCESSFUL!");
+            } catch (error) { alert("ERROR: " + error.message); }
+        };
+
+        // Logout
+        window.userLogout = () => signOut(auth);
+
+        // Auth Observer
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('btn-login').innerText = "MY ACCOUNT";
+                document.getElementById('btn-logout').style.display = 'block';
+                // Switch to home after login if we are in login section
+                if(document.getElementById('login-section').classList.contains('active-page')) {
+                    window.switchTab('home');
+                }
+            } else {
+                document.getElementById('btn-login').innerText = "LOGIN";
+                document.getElementById('btn-logout').style.display = 'none';
+                window.switchTab('login');
+            }
+        });
+    </script>
+
+    <script>
+        // --- DATA & STORAGE MANAGEMENT ---
         let userRole = 'guest'; 
         let productList = [];
 
-        window.initMarket = function() {
-            const colRef = collection(db, "products");
-            onSnapshot(colRef, (snapshot) => {
-                productList = [];
-                snapshot.forEach((doc) => {
-                    productList.push({ id: doc.id, ...doc.data() });
-                });
-                renderProducts();
-            });
+        function initMarket() {
+            const storedData = localStorage.getItem('rafiMarketProducts');
+            if (storedData) {
+                productList = JSON.parse(storedData);
+            } else {
+                productList = [{
+                    name: 'ROLEX SUBMARINER (COPY)',
+                    price: '35,000 DZD',
+                    desc: 'High quality copy, AAA grade.',
+                    phone: '0550123456',
+                    email: 'admin@market.com',
+                    payment: 'BaridiMob',
+                    image: null
+                }];
+                saveData();
+            }
+            renderProducts();
+        }
+
+        function saveData() {
+            localStorage.setItem('rafiMarketProducts', JSON.stringify(productList));
         }
 
         function renderProducts() {
@@ -467,15 +529,16 @@
             });
         }
 
-        window.switchTab = function(tabName) {
+        function switchTab(tabName) {
             document.querySelectorAll('.section-page').forEach(sec => sec.classList.remove('active-page'));
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
 
             document.getElementById(tabName + '-section').classList.add('active-page');
-            document.getElementById('btn-' + tabName).classList.add('active');
+            const navBtn = document.getElementById('btn-' + tabName);
+            if(navBtn) navBtn.classList.add('active');
         }
 
-        window.toggleAuth = function(type) {
+        function toggleAuth(type) {
             document.querySelectorAll('.auth-form').forEach(form => form.classList.remove('active-form'));
             document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
 
@@ -488,21 +551,14 @@
             }
         }
 
-        window.userLogin = function() {
-            alert("SUCCESSFULLY LOGGED IN!");
-            window.switchTab('home');
-            document.getElementById('btn-login').innerText = "MY ACCOUNT";
-        }
-
-        window.accessSeller = function() {
-            if (userRole === 'seller' || userRole === 'owner') { window.switchTab('seller'); return; }
-
+        function accessSeller() {
+            if (userRole === 'seller' || userRole === 'owner') { switchTab('seller'); return; }
             let code = prompt("ENTER ACCESS CODE:");
             if (code === "9999") { 
                 userRole = 'seller';
                 alert("ACCESS GRANTED: SELLER MODE.");
                 document.getElementById('btn-seller').innerText = "STUDIO";
-                window.switchTab('seller');
+                switchTab('seller');
             } 
             else if (code === "8888") { 
                 userRole = 'owner';
@@ -510,13 +566,13 @@
                 alert("ACCESS GRANTED: OWNER MODE (ADMIN).");
                 document.getElementById('btn-seller').innerText = "OWNER HUB";
                 document.getElementById('studio-title').innerText = "OWNER CONTROL PANEL";
-                window.switchTab('seller');
+                switchTab('seller');
             } else {
                 alert("ACCESS DENIED.");
             }
         }
 
-        window.publishProduct = async function() {
+        function publishProduct() {
             let name = document.getElementById('s-name').value;
             let price = document.getElementById('s-price').value;
             let desc = document.getElementById('s-desc').value;
@@ -528,98 +584,67 @@
             if (name && price && phone && payment) {
                 if (imageInput.files && imageInput.files[0]) {
                     const reader = new FileReader();
-                    reader.onload = async function(e) {
-                        try {
-                            const base64String = e.target.result;
-                            const storageRef = ref(storage, 'products/' + Date.now());
-                            await uploadString(storageRef, base64String, 'data_url');
-                            const downloadURL = await getDownloadURL(storageRef);
-                            
-                            saveToFirestore(name, price, desc, phone, email, payment, downloadURL);
-                        } catch (error) {
-                            console.error("Error uploading:", error);
-                            alert("حدث خطأ أثناء رفع الصورة!");
-                        }
+                    reader.onload = function(e) {
+                        addProductToArray(name, price, desc, phone, email, payment, e.target.result);
                     };
                     reader.readAsDataURL(imageInput.files[0]);
                 } else {
-                    saveToFirestore(name, price, desc, phone, email, payment, null);
+                    addProductToArray(name, price, desc, phone, email, payment, null);
                 }
-            } else {
-                alert("PLEASE FILL ALL REQUIRED FIELDS");
-            }
+            } else { alert("PLEASE FILL ALL REQUIRED FIELDS"); }
         }
 
-        async function saveToFirestore(name, price, desc, phone, email, payment, imgUrl) {
-            try {
-                await addDoc(collection(db, "products"), {
-                    name: name, price: price, desc: desc, phone: phone, email: email, payment: payment, image: imgUrl,
-                    createdAt: Date.now()
-                });
-                
-                document.getElementById('s-name').value = "";
-                document.getElementById('s-price').value = "";
-                document.getElementById('s-desc').value = "";
-                document.getElementById('s-image').value = "";
-                
-                alert("ITEM PUBLISHED & SAVED TO FIREBASE!");
-                window.switchTab('market');
-            } catch(e) {
-                alert("Error saving document: " + e);
-            }
+        function addProductToArray(name, price, desc, phone, email, payment, imgData) {
+            productList.unshift({
+                name: name, price: price, desc: desc, phone: phone, email: email, payment: payment, image: imgData
+            });
+            saveData(); renderProducts();
+            document.getElementById('s-name').value = "";
+            document.getElementById('s-price').value = "";
+            document.getElementById('s-desc').value = "";
+            document.getElementById('s-image').value = "";
+            alert("ITEM PUBLISHED & SAVED!");
+            switchTab('market');
         }
 
-        window.deleteProduct = async function(index) {
+        function deleteProduct(index) {
             if (userRole === 'owner') {
                 if(confirm("DELETE THIS ITEM PERMANENTLY?")) {
-                    let item = productList[index];
-                    if(item && item.id) {
-                        await deleteDoc(doc(db, "products", item.id));
-                    }
+                    productList.splice(index, 1); 
+                    saveData(); renderProducts();
                 }
             } else { alert("ONLY OWNER CAN DELETE ITEMS."); }
         }
 
-        window.resetSystem = async function() {
+        function resetSystem() {
             if (userRole === 'owner') {
                 if(confirm("DANGER: THIS WILL DELETE ALL PRODUCTS AND RESET SYSTEM.")) {
-                    try {
-                        for (let item of productList) {
-                            if(item.id) await deleteDoc(doc(db, "products", item.id));
-                        }
-                        alert("تم مسح جميع المنتجات من قاعدة البيانات.");
-                    } catch (e) {
-                        alert("خطأ أثناء الحذف: " + e);
-                    }
+                    localStorage.removeItem('rafiMarketProducts'); 
+                    location.reload(); 
                 }
             }
         }
 
         const modal = document.getElementById("productModal");
-
-        window.openModal = function(index) {
+        function openModal(index) {
             let item = productList[index];
-            
             document.getElementById('m-title').innerText = item.name.toUpperCase();
             document.getElementById('m-price').innerText = item.price;
             document.getElementById('m-desc').innerText = item.desc;
             document.getElementById('m-phone').innerText = item.phone;
             document.getElementById('m-email').innerText = item.email;
             document.getElementById('m-payment').innerText = item.payment;
-
             const imgContainer = document.getElementById('m-img-container');
             if (item.image) {
                 imgContainer.innerHTML = `<img src="${item.image}">`;
             } else {
                 imgContainer.innerHTML = `<span style="color:#333; font-family:'Cinzel',serif;">NO IMAGE</span>`;
             }
-
             modal.style.display = "block";
         }
 
-        window.closeModal = function() { modal.style.display = "none"; }
+        function closeModal() { modal.style.display = "none"; }
         window.onclick = function(event) { if (event.target == modal) modal.style.display = "none"; }
-
     </script>
 </body>
 </html>
