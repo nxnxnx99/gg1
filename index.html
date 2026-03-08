@@ -24,7 +24,7 @@
             background-color: var(--bg-color);
             color: var(--text-color);
             font-family: 'Montserrat', sans-serif;
-            overflow: hidden;
+            overflow-x: hidden;
         }
 
         /* --- Header / Navigation --- */
@@ -410,12 +410,10 @@
     </div>
 
     <script type="module">
-        // استيراد مكتبات Firebase الحقيقية
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getFirestore, collection, addDoc, doc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
         import { getStorage, ref, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js";
 
-        // إعدادات Firebase الخاصة بك
         const firebaseConfig = {
             apiKey: "AIzaSyBvYT2zroIh4fEUu1XMeutMBHK_kVkzGKQ",
             authDomain: "pc-store-56dfd.firebaseapp.com",
@@ -426,19 +424,15 @@
             measurementId: "G-MYHQ9KJ1J3"
         };
 
-        // تهيئة Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const storage = getStorage(app);
 
-        // --- DATA & STORAGE MANAGEMENT ---
         let userRole = 'guest'; 
         let productList = [];
 
-        // 1. Initialize Market من Firebase مباشرة
         window.initMarket = function() {
             const colRef = collection(db, "products");
-            // onSnapshot يجلب البيانات فورياً وكلما حدث تغيير في القاعدة
             onSnapshot(colRef, (snapshot) => {
                 productList = [];
                 snapshot.forEach((doc) => {
@@ -473,7 +467,6 @@
             });
         }
 
-        // --- NAVIGATION & ACCESS ---
         window.switchTab = function(tabName) {
             document.querySelectorAll('.section-page').forEach(sec => sec.classList.remove('active-page'));
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
@@ -482,7 +475,6 @@
             document.getElementById('btn-' + tabName).classList.add('active');
         }
 
-        // --- AUTHENTICATION (LOGIN / REGISTER LOGIC) ---
         window.toggleAuth = function(type) {
             document.querySelectorAll('.auth-form').forEach(form => form.classList.remove('active-form'));
             document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
@@ -524,7 +516,6 @@
             }
         }
 
-        // --- PUBLISH SYSTEM (Upload to Firebase) ---
         window.publishProduct = async function() {
             let name = document.getElementById('s-name').value;
             let price = document.getElementById('s-price').value;
@@ -539,13 +530,11 @@
                     const reader = new FileReader();
                     reader.onload = async function(e) {
                         try {
-                            // رفع الصورة إلى Firebase Storage
                             const base64String = e.target.result;
                             const storageRef = ref(storage, 'products/' + Date.now());
                             await uploadString(storageRef, base64String, 'data_url');
                             const downloadURL = await getDownloadURL(storageRef);
                             
-                            // حفظ البيانات مع رابط الصورة في Firestore
                             saveToFirestore(name, price, desc, phone, email, payment, downloadURL);
                         } catch (error) {
                             console.error("Error uploading:", error);
@@ -586,7 +575,6 @@
                     let item = productList[index];
                     if(item && item.id) {
                         await deleteDoc(doc(db, "products", item.id));
-                        // لا حاجة لاستدعاء renderProducts يدوياً لأن onSnapshot ستقوم بتحديث الواجهة فوراً
                     }
                 }
             } else { alert("ONLY OWNER CAN DELETE ITEMS."); }
@@ -607,7 +595,6 @@
             }
         }
 
-        // --- MODAL SYSTEM ---
         const modal = document.getElementById("productModal");
 
         window.openModal = function(index) {
@@ -635,4 +622,4 @@
 
     </script>
 </body>
-</html>
+</html>e
