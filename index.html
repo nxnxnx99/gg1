@@ -324,6 +324,14 @@
                     <input type="password" id="reg-pass" placeholder="PASSWORD" required>
                     <button type="submit" class="btn-publish">CREATE ACCOUNT</button>
                 </form>
+
+                <div id="account-info" class="auth-form" style="display:none; flex-direction:column; gap:20px; text-align:center;">
+                    <h3 style="color:white; font-family:'Cinzel',serif; letter-spacing:2px;">MY PROFILE</h3>
+                    <p style="color:#aaa; font-size:0.9rem;">LOGGED IN AS:</p>
+                    <p id="profile-email" style="color:white; font-weight:bold; font-size:1.1rem; border-bottom:1px solid #333; padding-bottom:20px;"></p>
+                    <button type="button" class="btn-publish" onclick="userLogout()" style="background:var(--danger-color); color:white; border:none;">LOGOUT SECURELY</button>
+                </div>
+
             </div>
         </div>
 
@@ -405,7 +413,7 @@
                         <span class="detail-value" id="m-payment" style="color: lightgreen;">BaridiMob</span>
                     </div>
                 </div>
-                <button style="width:100%; padding:15px; background:white; color:black; border:none; font-family:'Cinzel',serif; font-weight:bold; margin-top:20px; cursor:pointer;" onclick="alert('CONTACT SELLER USING INFO ABOVE')">CONFIRM PURCHASE</button>
+                <button id="m-buy-btn" style="width:100%; padding:15px; background:white; color:black; border:none; font-family:'Cinzel',serif; font-weight:bold; margin-top:20px; cursor:pointer;">BUY</button>
             </div>
         </div>
     </div>
@@ -459,18 +467,37 @@
         // Logout
         window.userLogout = () => signOut(auth);
 
-        // Auth Observer
+        // Auth Observer (التعديل الخاص بملف الحسابMY ACCOUNT)
         onAuthStateChanged(auth, (user) => {
+            const authToggle = document.querySelector('.auth-toggle');
+            const accountInfo = document.getElementById('account-info');
+            const formLogin = document.getElementById('form-login');
+            const formRegister = document.getElementById('form-register');
+
             if (user) {
                 document.getElementById('btn-login').innerText = "MY ACCOUNT";
                 document.getElementById('btn-logout').style.display = 'block';
-                // Switch to home after login if we are in login section
-                if(document.getElementById('login-section').classList.contains('active-page')) {
-                    window.switchTab('home');
-                }
+                
+                // إخفاء نماذج الدخول وإظهار ملف الحساب
+                if(authToggle) authToggle.style.display = 'none';
+                if(formLogin) formLogin.style.display = 'none';
+                if(formRegister) formRegister.style.display = 'none';
+                if(accountInfo) accountInfo.style.display = 'flex';
+                document.getElementById('profile-email').innerText = user.email;
+
             } else {
                 document.getElementById('btn-login').innerText = "LOGIN";
                 document.getElementById('btn-logout').style.display = 'none';
+                
+                // إرجاع نماذج الدخول
+                if(authToggle) authToggle.style.display = 'flex';
+                if(accountInfo) accountInfo.style.display = 'none';
+                if(formLogin) formLogin.style.display = 'flex';
+                if(formRegister) formRegister.style.display = 'none';
+                
+                document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+                document.getElementById('btn-tab-login').classList.add('active');
+                
                 window.switchTab('login');
             }
         });
@@ -544,9 +571,13 @@
 
             if(type === 'login') {
                 document.getElementById('form-login').classList.add('active-form');
+                document.getElementById('form-login').style.display = 'flex';
+                document.getElementById('form-register').style.display = 'none';
                 document.getElementById('btn-tab-login').classList.add('active');
             } else {
                 document.getElementById('form-register').classList.add('active-form');
+                document.getElementById('form-register').style.display = 'flex';
+                document.getElementById('form-login').style.display = 'none';
                 document.getElementById('btn-tab-register').classList.add('active');
             }
         }
@@ -634,12 +665,26 @@
             document.getElementById('m-phone').innerText = item.phone;
             document.getElementById('m-email').innerText = item.email;
             document.getElementById('m-payment').innerText = item.payment;
+            
             const imgContainer = document.getElementById('m-img-container');
             if (item.image) {
                 imgContainer.innerHTML = `<img src="${item.image}">`;
             } else {
                 imgContainer.innerHTML = `<span style="color:#333; font-family:'Cinzel',serif;">NO IMAGE</span>`;
             }
+
+            // --- كود الواتساب التلقائي ---
+            let waPhone = item.phone.trim();
+            // تحويل الرقم للصيغة الجزائرية إذا كان يبدأ بـ 0
+            if(waPhone.startsWith('0')) {
+                waPhone = '213' + waPhone.substring(1);
+            }
+            let msg = encodeURIComponent(`Hello, I am interested in your item: ${item.name} priced at ${item.price}`);
+            
+            document.getElementById('m-buy-btn').onclick = function() {
+                window.open(`https://wa.me/${waPhone}?text=${msg}`, '_blank');
+            };
+
             modal.style.display = "block";
         }
 
