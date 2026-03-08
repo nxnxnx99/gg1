@@ -71,6 +71,96 @@
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* --- AUTHENTICATION (LOGIN / REGISTER) SECTION --- */
+        #login-section {
+            display: none; 
+            flex-direction: column; justify-content: center; align-items: center; 
+            height: 100%;
+        }
+        #login-section.active-page { display: flex; }
+
+        .auth-container {
+            background: #050505;
+            border: 1px solid #333;
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+        }
+
+        .auth-logo {
+            font-family: 'Cinzel', serif;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            letter-spacing: 3px;
+        }
+
+        .auth-toggle {
+            display: flex;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #333;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #666;
+            padding: 10px;
+            font-family: 'Cinzel', serif;
+            cursor: pointer;
+            transition: 0.3s;
+            letter-spacing: 1px;
+        }
+
+        .toggle-btn.active {
+            color: white;
+            border-bottom: 2px solid white;
+        }
+
+        .auth-form { display: none; flex-direction: column; gap: 15px; }
+        .auth-form.active-form { display: flex; }
+
+        .name-row { display: flex; gap: 10px; }
+        .name-row input { margin-bottom: 0; }
+
+        .btn-google {
+            background: transparent;
+            color: white;
+            border: 1px solid white;
+            padding: 15px;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .btn-google:hover {
+            background: white;
+            color: black;
+        }
+
+        .divider {
+            margin: 20px 0;
+            color: #666;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+        }
+        .divider::before, .divider::after {
+            content: "";
+            flex: 1;
+            border-bottom: 1px solid #333;
+            margin: 0 10px;
+        }
+
         /* --- HOME SECTION --- */
         #home-section {
             display: none; 
@@ -187,16 +277,57 @@
     <header>
         <a href="#" class="logo" onclick="switchTab('home')">CHOF RAFI</a>
         <div class="nav-menu">
-            <button class="nav-btn active" id="btn-home" onclick="switchTab('home')">HOME</button>
+            <button class="nav-btn active" id="btn-login" onclick="switchTab('login')">LOGIN</button>
+            <button class="nav-btn" id="btn-home" onclick="switchTab('home')">HOME</button>
             <button class="nav-btn" id="btn-market" onclick="switchTab('market')">MARKET</button>
             <button class="nav-btn" id="btn-support" onclick="switchTab('support')">SUPPORT</button>
             <button class="nav-btn" id="btn-seller" onclick="accessSeller()">SELLER ACCESS</button>
+            <button class="nav-btn" id="btn-logout" style="display:none; color:red;" onclick="userLogout()">LOGOUT</button>
         </div>
     </header>
 
     <div class="main-container">
 
-        <div id="home-section" class="section-page active-page"> 
+        <div id="login-section" class="section-page active-page"> 
+            <div class="auth-container">
+                <div class="auth-logo">ACCESS PORTAL</div>
+                
+                <div class="auth-toggle">
+                    <button class="toggle-btn active" id="btn-tab-login" onclick="toggleAuth('login')">SIGN IN</button>
+                    <button class="toggle-btn" id="btn-tab-register" onclick="toggleAuth('register')">REGISTER</button>
+                </div>
+
+                <form id="form-login" class="auth-form active-form" onsubmit="event.preventDefault(); handleEmailLogin();">
+                    <input type="email" id="login-email" placeholder="EMAIL ADDRESS" required>
+                    <input type="password" id="login-pass" placeholder="PASSWORD" required>
+                    <button type="submit" class="btn-publish">ENTER SYSTEM</button>
+                    
+                    <div class="divider">OR</div>
+                    
+                    <button type="button" class="btn-google" onclick="handleGoogleLogin()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#fff"/>
+                            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#fff"/>
+                            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#fff"/>
+                            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#fff"/>
+                        </svg>
+                        CONTINUE WITH GOOGLE
+                    </button>
+                </form>
+
+                <form id="form-register" class="auth-form" onsubmit="event.preventDefault(); handleEmailRegister();">
+                    <div class="name-row">
+                        <input type="text" id="reg-fname" placeholder="FIRST NAME" required>
+                        <input type="text" id="reg-lname" placeholder="LAST NAME" required>
+                    </div>
+                    <input type="email" id="reg-email" placeholder="EMAIL ADDRESS" required>
+                    <input type="password" id="reg-pass" placeholder="PASSWORD" required>
+                    <button type="submit" class="btn-publish">CREATE ACCOUNT</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="home-section" class="section-page"> 
             <h1 class="hero-title">WELCOME TO<br>THE DARK MARKET</h1>
             <p class="hero-sub">PREMIUM . EXCLUSIVE . SECURE</p>
             <button onclick="switchTab('market')" style="background:transparent; border:1px solid white; color:white; padding:15px 40px; font-family:'Cinzel', serif; cursor:pointer;">START BROWSING</button>
@@ -279,19 +410,82 @@
         </div>
     </div>
 
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBvYT2zroIh4fEUu1XMeutMBHK_kVkzGKQ",
+            authDomain: "pc-store-56dfd.firebaseapp.com",
+            projectId: "pc-store-56dfd",
+            storageBucket: "pc-store-56dfd.firebasestorage.app",
+            messagingSenderId: "88997198692",
+            appId: "1:88997198692:web:5ae9eb07e8f3592c059871",
+            measurementId: "G-MYHQ9KJ1J3"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth();
+
+        // Email Login
+        window.handleEmailLogin = async () => {
+            const email = document.getElementById('login-email').value;
+            const pass = document.getElementById('login-pass').value;
+            try {
+                await signInWithEmailAndPassword(auth, email, pass);
+                alert("ACCESS GRANTED!");
+            } catch (error) { alert("ERROR: " + error.message); }
+        };
+
+        // Email Register
+        window.handleEmailRegister = async () => {
+            const email = document.getElementById('reg-email').value;
+            const pass = document.getElementById('reg-pass').value;
+            try {
+                await createUserWithEmailAndPassword(auth, email, pass);
+                alert("ACCOUNT CREATED SUCCESSFULLY!");
+            } catch (error) { alert("ERROR: " + error.message); }
+        };
+
+        // Google Login
+        window.handleGoogleLogin = async () => {
+            const provider = new GoogleAuthProvider();
+            try {
+                await signInWithPopup(auth, provider);
+                alert("GOOGLE LOGIN SUCCESSFUL!");
+            } catch (error) { alert("ERROR: " + error.message); }
+        };
+
+        // Logout
+        window.userLogout = () => signOut(auth);
+
+        // Auth Observer
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('btn-login').innerText = "MY ACCOUNT";
+                document.getElementById('btn-logout').style.display = 'block';
+                // Switch to home after login if we are in login section
+                if(document.getElementById('login-section').classList.contains('active-page')) {
+                    window.switchTab('home');
+                }
+            } else {
+                document.getElementById('btn-login').innerText = "LOGIN";
+                document.getElementById('btn-logout').style.display = 'none';
+                window.switchTab('login');
+            }
+        });
+    </script>
+
     <script>
         // --- DATA & STORAGE MANAGEMENT ---
         let userRole = 'guest'; 
         let productList = [];
 
-        // 1. Initialize Market (Load Data)
         function initMarket() {
             const storedData = localStorage.getItem('rafiMarketProducts');
-            
             if (storedData) {
                 productList = JSON.parse(storedData);
             } else {
-                // Default Item (Rolex) - Only added if storage is empty
                 productList = [{
                     name: 'ROLEX SUBMARINER (COPY)',
                     price: '35,000 DZD',
@@ -299,22 +493,20 @@
                     phone: '0550123456',
                     email: 'admin@market.com',
                     payment: 'BaridiMob',
-                    image: null // No image for default to keep it light
+                    image: null
                 }];
                 saveData();
             }
             renderProducts();
         }
 
-        // 2. Save Data to Local Storage
         function saveData() {
             localStorage.setItem('rafiMarketProducts', JSON.stringify(productList));
         }
 
-        // 3. Render Products to HTML
         function renderProducts() {
             const grid = document.getElementById('market-grid');
-            grid.innerHTML = ""; // Clear grid
+            grid.innerHTML = ""; 
 
             productList.forEach((item, index) => {
                 let displayImg = item.image 
@@ -333,22 +525,34 @@
                     </div>
                 </div>
                 `;
-                grid.innerHTML += cardHTML; // Append card
+                grid.innerHTML += cardHTML; 
             });
         }
 
-        // --- NAVIGATION & ACCESS ---
         function switchTab(tabName) {
             document.querySelectorAll('.section-page').forEach(sec => sec.classList.remove('active-page'));
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
 
             document.getElementById(tabName + '-section').classList.add('active-page');
-            document.getElementById('btn-' + tabName).classList.add('active');
+            const navBtn = document.getElementById('btn-' + tabName);
+            if(navBtn) navBtn.classList.add('active');
+        }
+
+        function toggleAuth(type) {
+            document.querySelectorAll('.auth-form').forEach(form => form.classList.remove('active-form'));
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+
+            if(type === 'login') {
+                document.getElementById('form-login').classList.add('active-form');
+                document.getElementById('btn-tab-login').classList.add('active');
+            } else {
+                document.getElementById('form-register').classList.add('active-form');
+                document.getElementById('btn-tab-register').classList.add('active');
+            }
         }
 
         function accessSeller() {
             if (userRole === 'seller' || userRole === 'owner') { switchTab('seller'); return; }
-
             let code = prompt("ENTER ACCESS CODE:");
             if (code === "9999") { 
                 userRole = 'seller';
@@ -368,7 +572,6 @@
             }
         }
 
-        // --- PUBLISH SYSTEM ---
         function publishProduct() {
             let name = document.getElementById('s-name').value;
             let price = document.getElementById('s-price').value;
@@ -388,85 +591,60 @@
                 } else {
                     addProductToArray(name, price, desc, phone, email, payment, null);
                 }
-            } else {
-                alert("PLEASE FILL ALL REQUIRED FIELDS");
-            }
+            } else { alert("PLEASE FILL ALL REQUIRED FIELDS"); }
         }
 
         function addProductToArray(name, price, desc, phone, email, payment, imgData) {
-            // Add new item to the beginning of the array
             productList.unshift({
-                name: name,
-                price: price,
-                desc: desc,
-                phone: phone,
-                email: email,
-                payment: payment,
-                image: imgData
+                name: name, price: price, desc: desc, phone: phone, email: email, payment: payment, image: imgData
             });
-            
-            saveData(); // Save to permanent storage
-            renderProducts(); // Update screen
-            
-            // Reset Form
+            saveData(); renderProducts();
             document.getElementById('s-name').value = "";
             document.getElementById('s-price').value = "";
             document.getElementById('s-desc').value = "";
             document.getElementById('s-image').value = "";
-            
             alert("ITEM PUBLISHED & SAVED!");
             switchTab('market');
         }
 
-        // --- DELETE SYSTEM ---
         function deleteProduct(index) {
             if (userRole === 'owner') {
                 if(confirm("DELETE THIS ITEM PERMANENTLY?")) {
-                    productList.splice(index, 1); // Remove from array
-                    saveData(); // Update storage
-                    renderProducts(); // Update screen
+                    productList.splice(index, 1); 
+                    saveData(); renderProducts();
                 }
-            } else {
-                alert("ONLY OWNER CAN DELETE ITEMS.");
-            }
+            } else { alert("ONLY OWNER CAN DELETE ITEMS."); }
         }
 
-        // --- RESET SYSTEM ---
         function resetSystem() {
             if (userRole === 'owner') {
                 if(confirm("DANGER: THIS WILL DELETE ALL PRODUCTS AND RESET SYSTEM.")) {
-                    localStorage.removeItem('rafiMarketProducts'); // Wipe data
-                    location.reload(); // Reload page to reset
+                    localStorage.removeItem('rafiMarketProducts'); 
+                    location.reload(); 
                 }
             }
         }
 
-        // --- MODAL SYSTEM ---
         const modal = document.getElementById("productModal");
-
         function openModal(index) {
-            let item = productList[index]; // Get item from array using index
-            
+            let item = productList[index];
             document.getElementById('m-title').innerText = item.name.toUpperCase();
             document.getElementById('m-price').innerText = item.price;
             document.getElementById('m-desc').innerText = item.desc;
             document.getElementById('m-phone').innerText = item.phone;
             document.getElementById('m-email').innerText = item.email;
             document.getElementById('m-payment').innerText = item.payment;
-
             const imgContainer = document.getElementById('m-img-container');
             if (item.image) {
                 imgContainer.innerHTML = `<img src="${item.image}">`;
             } else {
                 imgContainer.innerHTML = `<span style="color:#333; font-family:'Cinzel',serif;">NO IMAGE</span>`;
             }
-
             modal.style.display = "block";
         }
 
         function closeModal() { modal.style.display = "none"; }
         window.onclick = function(event) { if (event.target == modal) modal.style.display = "none"; }
-
     </script>
 </body>
 </html>
