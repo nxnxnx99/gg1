@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CHOF RAFI | Ultimate Market</title>
+    <title>pc store | Ultimate Market</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;600&display=swap" rel="stylesheet">
@@ -270,12 +270,23 @@
         .support-card:hover { background: white; color: black; border-color: white; }
         .support-title { font-family: 'Cinzel', serif; font-size: 1.5rem; margin-bottom: 15px; }
 
+        /* ======== NEW ADDITIONS CSS ======== */
+        .profile-pic { width: 80px; height: 80px; border-radius: 50%; border: 2px solid white; object-fit: cover; margin: 0 auto 15px; background: #333; }
+        .btn-small-action { background: transparent; border: 1px solid #666; color: white; padding: 5px 10px; font-size: 0.8rem; cursor: pointer; font-family: 'Cinzel', serif; }
+        .btn-small-action:hover { border-color: white; }
+        .comments-area { margin-top: 20px; border-top: 1px solid #333; padding-top: 20px; }
+        .comment-box { background: #111; padding: 10px; margin-bottom: 10px; border-left: 2px solid white; font-size: 0.85rem; }
+        .rating-stars { color: #444; font-size: 1.5rem; cursor: pointer; }
+        .rating-stars.active { color: gold; }
+        .avg-rating { color: gold; font-size: 1rem; margin-bottom: 10px; }
+        /* =================================== */
+
     </style>
 </head>
 <body onload="initMarket()">
 
     <header>
-        <a href="#" class="logo" onclick="switchTab('home')">CHOF RAFI</a>
+        <a href="#" class="logo" onclick="switchTab('home')">pc store</a>
         <div class="nav-menu">
             <button class="nav-btn active" id="btn-login" onclick="switchTab('login')">LOGIN</button>
             <button class="nav-btn" id="btn-home" onclick="switchTab('home')">HOME</button>
@@ -327,6 +338,10 @@
 
                 <div id="account-info" class="auth-form" style="display:none; flex-direction:column; gap:20px; text-align:center;">
                     <h3 style="color:white; font-family:'Cinzel',serif; letter-spacing:2px;">MY PROFILE</h3>
+                    
+                    <img id="user-profile-pic" class="profile-pic" src="https://via.placeholder.com/150/000000/FFFFFF/?text=USER" alt="Profile">
+                    <input type="file" id="pic-upload" accept="image/*" style="display:none;" onchange="changeProfilePic(event)">
+                    <button type="button" class="btn-small-action" onclick="document.getElementById('pic-upload').click()">UPDATE PICTURE</button>
                     <p style="color:#aaa; font-size:0.9rem;">LOGGED IN AS:</p>
                     <p id="profile-email" style="color:white; font-weight:bold; font-size:1.1rem; border-bottom:1px solid #333; padding-bottom:20px;"></p>
                     <button type="button" class="btn-publish" onclick="userLogout()" style="background:var(--danger-color); color:white; border:none;">LOGOUT SECURELY</button>
@@ -349,9 +364,9 @@
         <div id="support-section" class="section-page">
             <h2 style="font-family: 'Cinzel', serif; text-align: center;">CUSTOMER SUPPORT</h2>
             <div class="support-grid">
-                <a href="#" class="support-card"><div class="support-title">DISCORD</div><p>JOIN OUR COMMUNITY</p></a>
+                <a href="#" class="support-card"><div class="support-title">DISCORD</div><p>JOIN OUR COMMUNITY</p></https://discord.gg/rkKTABaF9k>
                 <a href="#" class="support-card"><div class="support-title">INSTAGRAM</div><p>FOLLOW UPDATES</p></a>
-                <a href="#" class="support-card"><div class="support-title">EMAIL</div><p>CONTACT ADMIN</p></a>
+                <a href="#" class="support-card"><div class="support-title">EMAIL</div><p>CONTACT ADMIN</p></7fa.rexi.2011@gmail.com>
             </div>
         </div>
 
@@ -396,6 +411,7 @@
             <div class="modal-img" id="m-img-container"></div>
             <div class="modal-info">
                 <h2 id="m-title">PRODUCT NAME</h2>
+                <div id="m-avg-rating" class="avg-rating">☆☆☆☆☆ (0)</div>
                 <div class="price" id="m-price">000 DZD</div>
                 <p id="m-desc" style="color:#aaa; line-height:1.6;">Description here...</p>
                 
@@ -414,7 +430,23 @@
                     </div>
                 </div>
                 <button id="m-buy-btn" style="width:100%; padding:15px; background:white; color:black; border:none; font-family:'Cinzel',serif; font-weight:bold; margin-top:20px; cursor:pointer;">BUY</button>
-            </div>
+                
+                <div class="comments-area">
+                    <h3 style="font-family:'Cinzel', serif; font-size:1rem; margin-bottom:10px;">RATE THIS ITEM</h3>
+                    <div id="star-rating-box">
+                        <span class="rating-stars" onclick="addRating(1)">★</span>
+                        <span class="rating-stars" onclick="addRating(2)">★</span>
+                        <span class="rating-stars" onclick="addRating(3)">★</span>
+                        <span class="rating-stars" onclick="addRating(4)">★</span>
+                        <span class="rating-stars" onclick="addRating(5)">★</span>
+                    </div>
+                    <br>
+                    <h3 style="font-family:'Cinzel', serif; font-size:1rem; margin-bottom:10px;">COMMENTS</h3>
+                    <div id="comments-list" style="max-height: 150px; overflow-y:auto; margin-bottom:10px;"></div>
+                    <input type="text" id="new-comment" placeholder="Write a comment..." style="padding:10px; margin-bottom:5px;">
+                    <button class="btn-small-action" onclick="submitComment()" style="width:100%;">POST COMMENT</button>
+                </div>
+                </div>
         </div>
     </div>
 
@@ -485,6 +517,15 @@
                 if(accountInfo) accountInfo.style.display = 'flex';
                 document.getElementById('profile-email').innerText = user.email;
 
+                // ====== PROFILE PIC LOGIC ======
+                const savedPic = localStorage.getItem('userProfilePic');
+                if(savedPic) {
+                    document.getElementById('user-profile-pic').src = savedPic;
+                } else if(user.photoURL) {
+                    document.getElementById('user-profile-pic').src = user.photoURL;
+                }
+                // ===============================
+
             } else {
                 document.getElementById('btn-login').innerText = "LOGIN";
                 document.getElementById('btn-logout').style.display = 'none';
@@ -507,6 +548,7 @@
         // --- DATA & STORAGE MANAGEMENT ---
         let userRole = 'guest'; 
         let productList = [];
+        let currentOpenProductIndex = -1; // Added for ratings/comments
 
         function initMarket() {
             const storedData = localStorage.getItem('rafiMarketProducts');
@@ -520,7 +562,9 @@
                     phone: '0550123456',
                     email: 'admin@market.com',
                     payment: 'BaridiMob',
-                    image: null
+                    image: null,
+                    comments: [], // Added
+                    ratings: []   // Added
                 }];
                 saveData();
             }
@@ -627,7 +671,8 @@
 
         function addProductToArray(name, price, desc, phone, email, payment, imgData) {
             productList.unshift({
-                name: name, price: price, desc: desc, phone: phone, email: email, payment: payment, image: imgData
+                name: name, price: price, desc: desc, phone: phone, email: email, payment: payment, image: imgData,
+                comments: [], ratings: [] // Added for new features
             });
             saveData(); renderProducts();
             document.getElementById('s-name').value = "";
@@ -658,7 +703,13 @@
 
         const modal = document.getElementById("productModal");
         function openModal(index) {
+            currentOpenProductIndex = index; // Keep track of opened product
             let item = productList[index];
+            
+            // Fix undefined arrays for old items
+            if(!item.comments) item.comments = [];
+            if(!item.ratings) item.ratings = [];
+
             document.getElementById('m-title').innerText = item.name.toUpperCase();
             document.getElementById('m-price').innerText = item.price;
             document.getElementById('m-desc').innerText = item.desc;
@@ -673,6 +724,9 @@
                 imgContainer.innerHTML = `<span style="color:#333; font-family:'Cinzel',serif;">NO IMAGE</span>`;
             }
 
+            // Load Comments & Ratings
+            refreshCommentsAndRatings();
+
             // --- كود الواتساب التلقائي ---
             let waPhone = item.phone.trim();
             // تحويل الرقم للصيغة الجزائرية إذا كان يبدأ بـ 0
@@ -682,14 +736,77 @@
             let msg = encodeURIComponent(`Hello, I am interested in your item: ${item.name} priced at ${item.price}`);
             
             document.getElementById('m-buy-btn').onclick = function() {
-                window.open(`https://wa.me/${waPhone}?text=${msg}`, '_blank');
+                window.open(`https://wa.me/${waPhone}?text=${msg}`, '_blank'); 
             };
-
             modal.style.display = "block";
         }
 
-        function closeModal() { modal.style.display = "none"; }
-        window.onclick = function(event) { if (event.target == modal) modal.style.display = "none"; }
+        function closeModal() {
+            modal.style.display = "none";
+        }
+
+        // ================= NEW FUNCTIONS ADDED =================
+
+        function changeProfilePic(event) {
+            if(event.target.files && event.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const picData = e.target.result;
+                    document.getElementById('user-profile-pic').src = picData;
+                    localStorage.setItem('userProfilePic', picData);
+                };
+                reader.readAsDataURL(event.target.files[0]);
+            }
+        }
+
+        function refreshCommentsAndRatings() {
+            let item = productList[currentOpenProductIndex];
+            
+            // Render Comments
+            const cList = document.getElementById('comments-list');
+            cList.innerHTML = "";
+            if(item.comments.length === 0) {
+                cList.innerHTML = "<p style='color:#666; font-size:0.8rem;'>No comments yet.</p>";
+            } else {
+                item.comments.forEach(c => {
+                    cList.innerHTML += `<div class="comment-box">${c}</div>`;
+                });
+            }
+
+            // Calculate Ratings
+            let avgStr = "☆☆☆☆☆ (0)";
+            const stars = document.querySelectorAll('#star-rating-box .rating-stars');
+            stars.forEach(s => s.classList.remove('active')); // Reset UI stars
+
+            if(item.ratings.length > 0) {
+                let sum = item.ratings.reduce((a, b) => a + b, 0);
+                let avg = Math.round(sum / item.ratings.length);
+                let displayStars = "★".repeat(avg) + "☆".repeat(5-avg);
+                avgStr = `${displayStars} (${item.ratings.length})`;
+            }
+            document.getElementById('m-avg-rating').innerText = avgStr;
+        }
+
+        function addRating(score) {
+            if(currentOpenProductIndex > -1) {
+                productList[currentOpenProductIndex].ratings.push(score);
+                saveData();
+                refreshCommentsAndRatings();
+                alert("RATING ADDED!");
+            }
+        }
+
+        function submitComment() {
+            let input = document.getElementById('new-comment');
+            let txt = input.value.trim();
+            if(txt !== "" && currentOpenProductIndex > -1) {
+                productList[currentOpenProductIndex].comments.push(txt);
+                saveData();
+                input.value = "";
+                refreshCommentsAndRatings();
+            }
+        }
+        // =======================================================
     </script>
 </body>
 </html>
