@@ -364,9 +364,9 @@
         <div id="support-section" class="section-page">
             <h2 style="font-family: 'Cinzel', serif; text-align: center;">CUSTOMER SUPPORT</h2>
             <div class="support-grid">
-                <a href="#" class="support-card"><div class="support-title">DISCORD</div><p>JOIN OUR COMMUNITY</p></https://discord.gg/rkKTABaF9k>
+                <a href="#" class="support-card"><div class="support-title">DISCORD</div><p>JOIN OUR COMMUNITY</p></a>
                 <a href="#" class="support-card"><div class="support-title">INSTAGRAM</div><p>FOLLOW UPDATES</p></a>
-                <a href="#" class="support-card"><div class="support-title">EMAIL</div><p>CONTACT ADMIN</p></7fa.rexi.2011@gmail.com>
+                <a href="#" class="support-card"><div class="support-title">EMAIL</div><p>CONTACT ADMIN</p></a>
             </div>
         </div>
 
@@ -374,11 +374,18 @@
             <div class="seller-form">
                 <h2 class="form-title" id="studio-title">SELLER STUDIO</h2>
                 
+                <label style="color:#666; font-size:0.8rem; font-family:'Cinzel', serif;">PRODUCT TYPE</label>
+                <select id="s-type" onchange="toggleLinkInput()">
+                    <option value="buy" selected>FOR SALE (BUY)</option>
+                    <option value="free">FREE DOWNLOAD</option>
+                </select>
+
                 <label style="color:#666; font-size:0.8rem; font-family:'Cinzel', serif;">PRODUCT IMAGE</label>
                 <input type="file" id="s-image" accept="image/*">
                 
                 <input type="text" id="s-name" placeholder="ITEM NAME">
-                <input type="text" id="s-price" placeholder="PRICE (DZD)">
+                <input type="text" id="s-price" placeholder="PRICE (DZD) - Leave empty if Free">
+                <input type="url" id="s-link" placeholder="DOWNLOAD LINK (Required for Free Items)" style="display:none;">
                 <textarea id="s-desc" rows="3" placeholder="ITEM DESCRIPTION"></textarea>
 
                 <h3 style="font-family:'Cinzel', serif; margin: 20px 0 10px; font-size:1rem; color:#888;">PAYMENT & CONTACT INFO</h3>
@@ -499,7 +506,7 @@
         // Logout
         window.userLogout = () => signOut(auth);
 
-        // Auth Observer (التعديل الخاص بملف الحسابMY ACCOUNT)
+        // Auth Observer
         onAuthStateChanged(auth, (user) => {
             const authToggle = document.querySelector('.auth-toggle');
             const accountInfo = document.getElementById('account-info');
@@ -510,27 +517,23 @@
                 document.getElementById('btn-login').innerText = "MY ACCOUNT";
                 document.getElementById('btn-logout').style.display = 'block';
                 
-                // إخفاء نماذج الدخول وإظهار ملف الحساب
                 if(authToggle) authToggle.style.display = 'none';
                 if(formLogin) formLogin.style.display = 'none';
                 if(formRegister) formRegister.style.display = 'none';
                 if(accountInfo) accountInfo.style.display = 'flex';
                 document.getElementById('profile-email').innerText = user.email;
 
-                // ====== PROFILE PIC LOGIC ======
                 const savedPic = localStorage.getItem('userProfilePic');
                 if(savedPic) {
                     document.getElementById('user-profile-pic').src = savedPic;
                 } else if(user.photoURL) {
                     document.getElementById('user-profile-pic').src = user.photoURL;
                 }
-                // ===============================
 
             } else {
                 document.getElementById('btn-login').innerText = "LOGIN";
                 document.getElementById('btn-logout').style.display = 'none';
                 
-                // إرجاع نماذج الدخول
                 if(authToggle) authToggle.style.display = 'flex';
                 if(accountInfo) accountInfo.style.display = 'none';
                 if(formLogin) formLogin.style.display = 'flex';
@@ -548,7 +551,18 @@
         // --- DATA & STORAGE MANAGEMENT ---
         let userRole = 'guest'; 
         let productList = [];
-        let currentOpenProductIndex = -1; // Added for ratings/comments
+        let currentOpenProductIndex = -1; 
+
+        function toggleLinkInput() {
+            let type = document.getElementById('s-type').value;
+            let linkInput = document.getElementById('s-link');
+            if (type === 'free') {
+                linkInput.style.display = 'block';
+            } else {
+                linkInput.style.display = 'none';
+                linkInput.value = '';
+            }
+        }
 
         function initMarket() {
             const storedData = localStorage.getItem('rafiMarketProducts');
@@ -563,8 +577,10 @@
                     email: 'admin@market.com',
                     payment: 'BaridiMob',
                     image: null,
-                    comments: [], // Added
-                    ratings: []   // Added
+                    type: 'buy',
+                    link: '',
+                    comments: [], 
+                    ratings: []   
                 }];
                 saveData();
             }
@@ -584,14 +600,15 @@
                     ? `<img src="${item.image}" alt="Product">` 
                     : `<span>${item.name.substring(0,3).toUpperCase()}</span>`;
 
+                let displayPrice = item.type === 'free' ? 'FREE' : item.price;
+
                 let cardHTML = `
                 <div class="product-card">
                     <div class="card-img">${displayImg}</div>
                     <div class="p-title">${item.name.toUpperCase()}</div>
-                    <p style="color:#666; font-size:0.8rem;">${item.desc.substring(0, 50)}...</p>
-                    <div class="p-price">${item.price}</div>
+                    <div class="p-price">${displayPrice}</div>
                     <div class="btn-group">
-                        <button class="buy-btn" onclick="openModal(${index})">VIEW DETAILS / BUY</button>
+                        <button class="buy-btn" onclick="openModal(${index})">VIEW DETAILS</button>
                         <button class="delete-btn" onclick="deleteProduct(${index})">REMOVE ITEM</button>
                     </div>
                 </div>
@@ -648,6 +665,8 @@
         }
 
         function publishProduct() {
+            let type = document.getElementById('s-type').value;
+            let link = document.getElementById('s-link').value;
             let name = document.getElementById('s-name').value;
             let price = document.getElementById('s-price').value;
             let desc = document.getElementById('s-desc').value;
@@ -656,29 +675,35 @@
             let payment = document.getElementById('s-payment').value;
             let imageInput = document.getElementById('s-image');
 
-            if (name && price && phone && payment) {
+            let isValid = false;
+            if (type === 'buy' && name && price && phone && payment) isValid = true;
+            if (type === 'free' && name && link) isValid = true;
+
+            if (isValid) {
                 if (imageInput.files && imageInput.files[0]) {
                     const reader = new FileReader();
                     reader.onload = function(e) {
-                        addProductToArray(name, price, desc, phone, email, payment, e.target.result);
+                        addProductToArray(name, price, desc, phone, email, payment, e.target.result, type, link);
                     };
                     reader.readAsDataURL(imageInput.files[0]);
                 } else {
-                    addProductToArray(name, price, desc, phone, email, payment, null);
+                    addProductToArray(name, price, desc, phone, email, payment, null, type, link);
                 }
-            } else { alert("PLEASE FILL ALL REQUIRED FIELDS"); }
+            } else { alert("PLEASE FILL ALL REQUIRED FIELDS FOR THE SELECTED TYPE"); }
         }
 
-        function addProductToArray(name, price, desc, phone, email, payment, imgData) {
+        function addProductToArray(name, price, desc, phone, email, payment, imgData, type, link) {
             productList.unshift({
                 name: name, price: price, desc: desc, phone: phone, email: email, payment: payment, image: imgData,
-                comments: [], ratings: [] // Added for new features
+                type: type || 'buy', link: link || '',
+                comments: [], ratings: [] 
             });
             saveData(); renderProducts();
             document.getElementById('s-name').value = "";
             document.getElementById('s-price').value = "";
             document.getElementById('s-desc').value = "";
             document.getElementById('s-image').value = "";
+            document.getElementById('s-link').value = "";
             alert("ITEM PUBLISHED & SAVED!");
             switchTab('market');
         }
@@ -703,19 +728,17 @@
 
         const modal = document.getElementById("productModal");
         function openModal(index) {
-            currentOpenProductIndex = index; // Keep track of opened product
+            currentOpenProductIndex = index; 
             let item = productList[index];
             
-            // Fix undefined arrays for old items
             if(!item.comments) item.comments = [];
             if(!item.ratings) item.ratings = [];
 
             document.getElementById('m-title').innerText = item.name.toUpperCase();
-            document.getElementById('m-price').innerText = item.price;
             document.getElementById('m-desc').innerText = item.desc;
-            document.getElementById('m-phone').innerText = item.phone;
-            document.getElementById('m-email').innerText = item.email;
-            document.getElementById('m-payment').innerText = item.payment;
+            document.getElementById('m-phone').innerText = item.phone || "N/A";
+            document.getElementById('m-email').innerText = item.email || "N/A";
+            document.getElementById('m-payment').innerText = item.payment || "N/A";
             
             const imgContainer = document.getElementById('m-img-container');
             if (item.image) {
@@ -724,28 +747,37 @@
                 imgContainer.innerHTML = `<span style="color:#333; font-family:'Cinzel',serif;">NO IMAGE</span>`;
             }
 
-            // Load Comments & Ratings
             refreshCommentsAndRatings();
 
-            // --- كود الواتساب التلقائي ---
-            let waPhone = item.phone.trim();
-            // تحويل الرقم للصيغة الجزائرية إذا كان يبدأ بـ 0
-            if(waPhone.startsWith('0')) {
-                waPhone = '213' + waPhone.substring(1);
-            }
-            let msg = encodeURIComponent(`Hello, I am interested in your item: ${item.name} priced at ${item.price}`);
+            let buyBtn = document.getElementById('m-buy-btn');
             
-            document.getElementById('m-buy-btn').onclick = function() {
-                window.open(`https://wa.me/${waPhone}?text=${msg}`, '_blank'); 
-            };
+            if (item.type === 'free') {
+                buyBtn.innerText = "FREE DOWNLOAD";
+                document.getElementById('m-price').innerText = "FREE";
+                buyBtn.onclick = function() {
+                    window.open(item.link || '#', '_blank');
+                };
+            } else {
+                buyBtn.innerText = "BUY";
+                document.getElementById('m-price').innerText = item.price;
+                
+                let waPhone = item.phone ? item.phone.trim() : "";
+                if(waPhone.startsWith('0')) {
+                    waPhone = '213' + waPhone.substring(1);
+                }
+                let msg = encodeURIComponent(`Hello, I am interested in your item: ${item.name} priced at ${item.price}`);
+                
+                buyBtn.onclick = function() {
+                    window.open(`https://wa.me/${waPhone}?text=${msg}`, '_blank'); 
+                };
+            }
+            
             modal.style.display = "block";
         }
 
         function closeModal() {
             modal.style.display = "none";
         }
-
-        // ================= NEW FUNCTIONS ADDED =================
 
         function changeProfilePic(event) {
             if(event.target.files && event.target.files[0]) {
@@ -762,7 +794,6 @@
         function refreshCommentsAndRatings() {
             let item = productList[currentOpenProductIndex];
             
-            // Render Comments
             const cList = document.getElementById('comments-list');
             cList.innerHTML = "";
             if(item.comments.length === 0) {
@@ -773,10 +804,9 @@
                 });
             }
 
-            // Calculate Ratings
             let avgStr = "☆☆☆☆☆ (0)";
             const stars = document.querySelectorAll('#star-rating-box .rating-stars');
-            stars.forEach(s => s.classList.remove('active')); // Reset UI stars
+            stars.forEach(s => s.classList.remove('active')); 
 
             if(item.ratings.length > 0) {
                 let sum = item.ratings.reduce((a, b) => a + b, 0);
@@ -806,7 +836,6 @@
                 refreshCommentsAndRatings();
             }
         }
-        // =======================================================
     </script>
 </body>
 </html>
